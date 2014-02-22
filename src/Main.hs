@@ -1,4 +1,4 @@
-#!runhaskell -i../srci
+#!runhaskell -isrc
 -- vim: set filetype=haskell:
 
 module Main (main) where
