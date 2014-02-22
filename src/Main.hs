@@ -34,8 +34,8 @@ main = run (mapGroupT, mapGroupInfo)
 -- Term Infos --
 
 mapGroupInfo :: TermInfo
-mapGroupInfo = defTI { termName = "mapGroup"
-                  , termDoc  = "apply a command to all the consecutive lines in a file that match a given pattern"
+mapGroupInfo = defTI { termName = "mapgroup"
+                  , termDoc  = "map a command to groups of consecutive lines matching a pattern"
                   , version  = "1.0"
                   }
 
