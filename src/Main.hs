@@ -53,7 +53,7 @@ mapGroupT = mapGroup <$> suffixT
 suffixT :: Term (Maybe String)
 suffixT = value $ opt Nothing (optInfo ["s", "suffix"])
    { optName = "SUFFIX"
-   , optDoc  = "suffix for the backup file (.orig by default) or none to not retain a backup of the original file"
+   , optDoc  = "suffix for the backup file (.orig by default) or 'none' to not retain a backup of the original file"
    }
 
 -- Positional Arguments --
