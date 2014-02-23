@@ -13,4 +13,4 @@ Example: `mapgroup 'sort --ignore-case --unique' '^#include|^using namespace' ma
 
 Example: `mapgroup uniq '^\w*$' Main.hs`
 
-   removes duplicated consecutive empty lines (assuming `uniq` command is available in the system).
+   removes consecutive empty lines (assuming `uniq` command is available in the system).

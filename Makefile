@@ -23,7 +23,7 @@ clean:
 	rm -rf bin obj src/*.{o,hi}
 
 dist: clean
-	tar czvf ../$(APP_NAME).tgz --exclude=.git --exclude=*.tgz ../$(APP_NAME)
+	tar czvf ../$(APP_NAME).tgz --exclude=.git --exclude=*.tgz ../$(APP_NAME)*
 
 ###############################################################################
 # Specific Rules
