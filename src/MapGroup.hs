@@ -1,5 +1,6 @@
 module MapGroup (mapGroup) where
 
+import Control.Monad ((<=<))
 import Data.List (groupBy)
 import Data.Tuple (swap)
 import System.Process (readProcess)
@@ -10,13 +11,14 @@ mapGroup :: String   -- ^ filename
          -> String   -- ^ pattern
          -> [String] -- ^ lines
          -> IO [String]
-mapGroup f g l = (sequence . map (either left right) . group g . lineno $ l) >>= return . concat
+mapGroup f g = return . concat <=< sequence . map (either left right) . group g . lineno
    where
       left ::(Integer, String) -> IO [String]
       left = return . return . snd
 
       right :: [(Integer, String)] -> IO [String]
-      right x = readProcess (cmd f) (args f) (unlines . map snd $ x) >>= return . lines
+      right = return . lines <=< readProcess (cmd f) (args f) . unlines . map snd
+
       cmd  = head . words
       args = tail . words
 

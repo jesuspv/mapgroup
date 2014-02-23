@@ -34,10 +34,11 @@ main = run (mapGroupT, mapGroupInfo)
 -- Term Infos --
 
 mapGroupInfo :: TermInfo
-mapGroupInfo = defTI { termName = "mapgroup"
-                  , termDoc  = "map a command to groups of consecutive lines matching a pattern"
-                  , version  = "1.0"
-                  }
+mapGroupInfo = defTI
+   { termName = "mapgroup"
+   , termDoc  = "map a command to groups of consecutive lines matching a pattern"
+   , version  = "1.0"
+   }
 
 -- Terms --
 
