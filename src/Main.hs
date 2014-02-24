@@ -61,13 +61,13 @@ suffixT = value $ opt Nothing (optInfo ["s", "suffix"])
 cmdT :: Term String
 cmdT = required $ pos 0 Nothing posInfo
    { posName = "COMMAND"
-   , posDoc  = "command to execute by group"
+   , posDoc  = "full path of the command to execute by group"
    }
 
 patternT :: Term String
 patternT = required $ pos 1 Nothing posInfo
    { posName = "PATTERN"
-   , posDoc  = "grouping pattern"
+   , posDoc  = "grouping pattern, metacharacters allowed"
    }
 
 fileT :: Term FilePath
