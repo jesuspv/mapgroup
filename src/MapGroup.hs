@@ -22,10 +22,12 @@ mapGroup f g = return . concat <=< sequence . map (either left right) . group g 
       cmd  = head . words
       args = tail . words
 
--- | group
+-- | list of lines ordered by line number with consecutive lines matching pattern grouped
 group :: String              -- ^ pattern
       -> [(Integer, String)] -- ^ lines including line numbers
-      -> [Either (Integer,String) [(Integer, String)]]
+      -> [Either (Integer, String)  -- ^ lines not matching
+                [(Integer, String)] -- ^ lines matching
+         ]
 group pattern = map (\ ls -> if length ls == 1
                              then Left  (head ls)
                              else Right ls
@@ -34,5 +36,5 @@ group pattern = map (\ ls -> if length ls == 1
 
 -- | append line numbers starting by one
 lineno :: [String] -- ^ lines
-       -> [(Integer,String)]
+       -> [(Integer, String)]
 lineno = map swap . flip zip [1..]
