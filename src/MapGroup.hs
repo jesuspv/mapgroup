@@ -1,9 +1,9 @@
-module MapGroup (mapGroup) where
+module MapGroup ( mapGroup ) where
 
-import Data.List (groupBy)
-import Data.Tuple (swap)
-import System.Process (readProcess)
-import Text.Regex.Posix ((=~))
+import Data.List        ( groupBy )
+import Data.Tuple       ( swap )
+import System.Process   ( readProcess )
+import Text.Regex.Posix ( (=~) )
 
 -- | map a command to groups of consecutive lines matching a pattern
 mapGroup :: String   -- ^ filename

@@ -3,88 +3,87 @@
 
 module Main (main) where
 
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (when)
-import qualified MapGroup (mapGroup)
-import System.Console.CmdTheLine ( defTI
-                                 , opt
-                                 , optDoc
-                                 , optInfo
-                                 , optName
-                                 , pos
-                                 , posDoc
-                                 , posInfo
-                                 , posName
-                                 , required
-                                 , run
-                                 , Term
-                                 , TermInfo
-                                 , termDoc
-                                 , termName
-                                 , value
-                                 , version
+import Control.Monad             ( when )
+import Options.Applicative       ( (<>)
+                                 , argument
+                                 , execParser
+                                 , fullDesc
+                                 , header
+                                 , help
+                                 , info
+                                 , long
+                                 , metavar
+                                 , optional
+                                 , progDesc
+                                 , short
+                                 , str
+                                 , strOption
                                  )
-import System.Directory (copyFile, removeFile)
+import Options.Applicative.Extra ( helper )
+import Options.Applicative.Types ( Parser )
+import System.Directory          ( copyFile, removeFile )
+
+import qualified MapGroup ( mapGroup )
 
 -- Main --
 
 main :: IO ()
-main = run (mapGroupT, mapGroupInfo)
-
--- Term Infos --
-
-mapGroupInfo :: TermInfo
-mapGroupInfo = defTI
-   { termName = "mapgroup"
-   , termDoc  = "map a command to groups of consecutive lines matching a pattern"
-   , version  = "1.0"
-   }
-
--- Terms --
-
-mapGroupT :: Term (IO ())
-mapGroupT = mapGroup <$> suffixT
-                     <*> cmdT
-                     <*> patternT
-                     <*> fileT
-
--- Options --
-
-suffixT :: Term (Maybe String)
-suffixT = value $ opt Nothing (optInfo ["s", "suffix"])
-   { optName = "SUFFIX"
-   , optDoc  = "suffix for the backup file (.orig by default) or 'none' to not retain a backup of the original file"
-   }
-
--- Positional Arguments --
-
-cmdT :: Term String
-cmdT = required $ pos 0 Nothing posInfo
-   { posName = "COMMAND"
-   , posDoc  = "full path of the command to execute by group"
-   }
-
-patternT :: Term String
-patternT = required $ pos 1 Nothing posInfo
-   { posName = "PATTERN"
-   , posDoc  = "grouping pattern, metacharacters allowed"
-   }
-
-fileT :: Term FilePath
-fileT = required $ pos 2 Nothing posInfo
-   { posName = "FILE"
-   , posDoc  = "file to process"
-   }
+main = execParser opts >>= mapGroup
+   where opts = info (helper <*> mapGroupParser)
+                     ( fullDesc
+                    <> progDesc "map a command to groups of consecutive lines matching a pattern"
+                    <> header "mapgroup"
+                     )
 
 -- Commands --
 
-mapGroup :: Maybe String -> String -> String -> FilePath -> IO ()
-mapGroup suffix' cmd pattern file =
-       copyFile file bak
+mapGroupParser :: Parser MapGroup
+mapGroupParser = MapGroup
+   <$> extensionParser
+   <*> commandParser
+   <*> patternParser
+   <*> fileParser
+
+-- Options --
+
+extensionParser :: Parser (Maybe String)
+extensionParser = optional $ strOption
+   ( long "extension"
+  <> short 's'
+  <> metavar "EXTENSION"
+  <> help "extension for the backup file (.orig by default) or 'none' to not retain a backup of the original file"
+   )
+
+-- Positional Arguments --
+
+commandParser :: Parser String
+commandParser = argument str (metavar "COMMAND" <> help "full path of the command to execute by group")
+
+patternParser :: Parser String
+patternParser = argument str (metavar "PATTERN" <> help "grouping pattern, metacharacters allowed")
+
+fileParser :: Parser FilePath
+fileParser = argument str (metavar "FILE" <> help "file to process")
+
+-- Logic --
+
+data MapGroup = MapGroup
+   { extension :: Maybe String
+   , command   :: String
+   , pattern   :: String
+   , file      :: FilePath
+   } deriving Show
+
+mapGroup :: MapGroup -> IO ()
+mapGroup g =
+       copyFile (file g) bak
    >>  readFile bak
-   >>= MapGroup.mapGroup cmd pattern . lines
-   >>= writeFile file . unlines
+   >>= MapGroup.mapGroup (command g) (pattern g) . lines
+   >>= writeFile (file g) . unlines
    >>  when none (removeFile bak)
-   where suffix = maybe ".orig" (\s -> if s == "none" then ".__none__" else s) suffix' -- none suffix collitions should be avoided
-         bak    = file ++ suffix
-         none   = maybe False (== "none") suffix'
+   where ext  = maybe ".orig"
+                      (\s -> if s == "none" then ".__none__" else s)
+                      (extension g)
+                   -- none suffix collisions should be avoided
+         bak  = (file g) ++ ext
+         none = maybe False (== "none") (extension g)
